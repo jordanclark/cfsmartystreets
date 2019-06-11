@@ -14,6 +14,7 @@ Run the following from commandbox:
 `box install cfsmartystreets`
 
 ## Changes
+2019-06-10 Re-write
 2019-06-03 Open source release
 
 ## API documentation
