@@ -1,7 +1,7 @@
 {
     "name":"cfsmartystreets",
     "slug":"cfsmartystreets",
-    "version":"1.0.2",
+    "version":"1.0.3",
     "author":"Jordan Clark <jordanclark@gmail.com>",
     "keywords":[
         "smartystreets",
@@ -10,9 +10,9 @@
         "api",
         "rest"
     ],
-    "shortDescription":"API client for setcronjob.com",
+    "shortDescription":"API client for smartystreets.com",
     "type":"modules",
-    "location":"jordanclark/cfsmartystreets#v1.0.2",
+    "location":"jordanclark/cfsmartystreets#v1.0.3",
     "repository":{
         "URL":"https://github.com/jordanclark/cfsmartystreets.git",
         "type":"GIT"
