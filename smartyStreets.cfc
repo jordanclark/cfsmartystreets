@@ -1,5 +1,5 @@
 component {
-	cfprocessingdirective( preserveCase=true );
+	// cfprocessingdirective( preserveCase=true );
 
 	function init(
 		required string authID
@@ -8,8 +8,9 @@ component {
 	,	string apiUrl= "https://api.smartystreets.com"
 	,	string userAgent= "CFML API Agent 0.1"
 	,	numeric httpTimeOut= 60
-	,	boolean debug= ( request.debug ?: false )
+	,	boolean debug
 	) {
+		arguments.debug = ( arguments.debug ?: request.debug ?: false );
 		this.authID= arguments.authID;
 		this.authToken= arguments.authToken;
 		this.htmlAuth= arguments.htmlAuth;
@@ -28,7 +29,12 @@ component {
 				request.log( arguments.input );
 			}
 		} else if( this.debug ) {
-			cftrace( text=( isSimpleValue( arguments.input ) ? arguments.input : "" ), var=arguments.input, category="SmartyStreets", type="information" );
+			var info= ( isSimpleValue( arguments.input ) ? arguments.input : serializeJson( arguments.input ) );
+			cftrace(
+				var= "info"
+			,	category= "SmartyStreets"
+			,	type= "information"
+			);
 		}
 		return;
 	}
