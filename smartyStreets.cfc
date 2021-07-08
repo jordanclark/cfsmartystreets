@@ -17,6 +17,7 @@ component {
 		this.apiUrl= arguments.apiUrl;
 		this.userAgent= arguments.userAgent;
 		this.httpTimeOut= arguments.httpTimeOut;
+		this.debug= arguments.debug;
 		return this;
 	}
 
