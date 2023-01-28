@@ -1,7 +1,7 @@
 {
     "name":"cfsmartystreets",
     "slug":"cfsmartystreets",
-    "version":"1.1.1",
+    "version":"1.2.0",
     "author":"Jordan Clark <jordanclark@gmail.com>",
     "keywords":[
         "smartystreets",
@@ -12,7 +12,7 @@
     ],
     "shortDescription":"API client for smartystreets.com",
     "type":"modules",
-    "location":"jordanclark/cfsmartystreets#v1.1.1",
+    "location":"jordanclark/cfsmartystreets#v1.2.0",
     "repository":{
         "URL":"https://github.com/jordanclark/cfsmartystreets.git",
         "type":"GIT"
