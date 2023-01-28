@@ -1,5 +1,5 @@
 component {
-	// cfprocessingdirective( preserveCase=true );
+	cfprocessingdirective( preserveCase=true );
 
 	function init(
 		required string authID
@@ -43,42 +43,86 @@ component {
 		return this.apiRequest( api= "GET /zipcode", prefix= "us-zipcode", argumentCollection= arguments );
 	}
 
-	struct function addressValidate(
-		required string addressee
+	struct function geoCodeAddress(
+		string input_id
 	,	required string street
-	,	required string street2
-	,	required string city
-	,	required string state
+	,	string street2
+	,	string city
+	,	string state
 	,	required string zipcode
 	,	numeric candidates= 3
 	) {
-		var out= this.apiRequest( api= "GET /street-address", prefix= "us-street", argumentCollection= arguments );
-		out.suggestions= [];
-		out.matched= false;
+		return this.addressValidate(
+			addressee="",
+			street=arguments.street,
+			street2=arguments.street2,
+			city=arguments.city,
+			state=arguments.state,
+			zipcode=arguments.zipcode,
+			candidates=arguments.candidates,
+			input_id=arguments.input_id,
+			includeMeta=true,
+			matchType='invalid'
+		);
+	}
 
-		var a= 0;
-		var address= 0;
-		if( out.success ) {
-			for( a in out.data ) {
-				address= {
-					fullname= uCase( structKeyExists( a, "addressee" ) && len( a.addressee ) ? a.addressee : arguments.addressee )
-				,	address1= uCase( structKeyExists( a, "delivery_line_1" ) ? a.delivery_line_1 : "" )
-				,	address2= uCase( structKeyExists( a, "delivery_line_2" ) ? a.delivery_line_2 : "" )
-				,	city= uCase( structKeyExists( a.components, "city_name" ) ? a.components.city_name : "" )
-				,	state= ( structKeyExists( a.components, "state_abbreviation" ) ? a.components.state_abbreviation : "" )
-				,	zip= a.components.zipcode & ( structKeyExists( a.components, "plus4_code" ) ? "-" & a.components.plus4_code : "" )
-				};
-				//  check for address differences 
-				if( listFind( "Y,S,D", a.analysis.dpv_match_code ) && arrayLen( out.data ) == 1 ) {
-					out.matched= true;
-					out.address= address;
-				} else {
-					arrayAppend( out.suggestions, address );
+	struct function addressValidate(
+			required string addressee
+		,	required string street
+		,	required string street2
+		,	required string city
+		,	required string state
+		,	required string zipcode
+		,	numeric candidates= 3
+		,	string input_id = ""
+		,	boolean includeMeta=false 
+		,	string matchType = "strict"
+		) {
+			var args = {
+				'input_id': arguments.input_id,
+				'addressee': arguments.addressee,
+				'street': arguments.street,
+				'street2': arguments.street2,
+				'city': arguments.city,
+				'state': arguments.state,
+				'zipcode': arguments.zipcode,
+				'candidates': arguments.candidates,
+				'match': arguments.matchType
+			};
+			var out= this.apiRequest( api= "GET /street-address", prefix= "us-street", argumentCollection= args );
+			out.suggestions= [];
+			out.matched= false;
+
+			if( out.success ) {
+				for( var a in out.data ) {
+					var address= {
+						fullname= uCase( structKeyExists( a, "addressee" ) && len( a.addressee ) ? a.addressee : arguments.addressee )
+					,	address1= uCase( structKeyExists( a, "delivery_line_1" ) ? a.delivery_line_1 : "" )
+					,	address2= uCase( structKeyExists( a, "delivery_line_2" ) ? a.delivery_line_2 : "" )
+					,	city= uCase( structKeyExists( a.components, "city_name" ) ? a.components.city_name : "" )
+					,	state= ( structKeyExists( a.components, "state_abbreviation" ) ? a.components.state_abbreviation : "" )
+					,	zip= a.components.zipcode & ( structKeyExists( a.components, "plus4_code" ) ? "-" & a.components.plus4_code : "" )				
+					};
+					if(arguments.includeMeta && (isStruct(a.metadata) ?: false)){
+						address['metadata'] = a.metadata;
+					}
+					if(len(a.input_id ?: '')){
+						address['metadata']['addressID'] = a.input_id;
+					}
+					//  check for address differences 
+					if( structKeyExists(a.analysis,'dpv_match_code') && listFind( "Y,S,D", a.analysis.dpv_match_code ) && arrayLen( out.data ) >= 1 ) {
+						out.matched= true;
+						out.address= address;
+					} else if( arrayLen( out.data ) == 1 ) {
+						out.matched= true;
+						out.address= address;
+					} else {
+						arrayAppend( out.suggestions, address );
+					}
 				}
 			}
+			return out;
 		}
-		return out;
-	}
 
 	struct function bulkValidate(
 		required array addresses
